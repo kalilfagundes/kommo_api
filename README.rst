@@ -1,142 +1,183 @@
-===============================
-AmoCRM python API. V2
-===============================
+# Kommo Python API Wrapper
 
-.. image:: https://travis-ci.org/Krukov/amocrm_api.svg?branch=master
-    :target: https://travis-ci.org/Krukov/amocrm_api
-.. image:: https://img.shields.io/coveralls/Krukov/amocrm_api.svg
-    :target: https://coveralls.io/r/Krukov/amocrm_api
+A Python wrapper for the Kommo (formerly AmoCRM) API v2, adapted to work with the Kommo.com domain.
 
+## Credits
 
-Python AmoCRM API v2 (https://kommo.com/) (human interface for easy using)
+This is an adaptation of the [amocrm_api](https://github.com/Krukov/amocrm_api) library originally created by **Dmitry Kryukov** (Krukov). The original library was designed for AmoCRM.ru, and this version has been adapted to work with Kommo.com.
 
+**Original Author:** Dmitry Kryukov  
+**Original Repository:** https://github.com/Krukov/amocrm_api  
+**License:** MIT License
 
-Installation
-============
+## About This Adaptation
 
-::
+Kommo (formerly AmoCRM) uses the same API endpoints and structure as AmoCRM, but operates on the `kommo.com` domain instead of `amocrm.ru`. This adaptation maintains all the functionality and features of the original library while ensuring compatibility with Kommo's western domain.
 
-    pip install amocrm_api
+**Key Changes:**
+- All API endpoints updated from `amocrm.ru` to `kommo.com`
+- OAuth endpoints adapted for Kommo domain
+- All functionality remains identical - same endpoints, same structure
+- Full backward compatibility with the original API design
 
-Usage
-=====
+## Installation
 
-Авторизация
------------
+```bash
+pip install amocrm_api
+```
 
-Авторизация - с Июня 2020 amoCRM форсировала смену авторизации с токена на OAuth
+Or install from source:
 
-И без поддержки server to server взаимодействия, в связи с чем текущая реализация содержит следующие ограничения
+```bash
+git clone https://github.com/kalilfagundes/amocrm_api
+cd amocrm_api
+pip install -e .
+```
 
-1. В личном кабинете необходимо создать интеграцию
-2. Рефреш токен одноразовый и обновляется при каждом получении аксесс токена
-3. Ecли запросы в amoCRM происходят реже чем время жизни рефреш токена то вам не подойдет такой варант интеграции
-4. Токены нужно хранить, для этого есть api и существует 3 типа хранилища (можно реализовать свой):
+## Quick Start
 
-- MemoryTokensStorage - хранит токены в памяти (если вы перезапускаете приложение то придется снова создавать refresh_token)
-- FileStorage - сохраняет токены в файле
-- RedisTokensStorage - сохраняет токены в редисе (pip install redis) для new-age приложений которые работают в нескольких экземплярах
+### Authentication
 
-Example::
+Since June 2020, Kommo/AmoCRM requires OAuth 2.0 authentication. The library supports three token storage options:
 
-    from amocrm.v2 import tokens
+- **MemoryTokensStorage** - Stores tokens in memory (lost on restart)
+- **FileTokensStorage** - Saves tokens to files (default)
+- **RedisTokensStorage** - Stores tokens in Redis (for multi-instance applications)
 
-    tokens.default_token_manager(
-        client_id="xxx-xxx-xxxx-xxxx-xxxxxxx",
-        client_secret="xxxx",
-        subdomain="subdomain",
-        redirect_url="https://xxxx/xx",
-        storage=tokens.FileTokensStorage(),  # by default FileTokensStorage
-    )
-    tokens.default_token_manager.init(code="..very long code...", skip_error=True)
+**Example:**
 
+```python
+from amocrm.v2 import tokens
 
-- Контакт - Contact
-- Компания  - Company
-- Теги - Tags
-- Сделка - Lead
-- Задача - Task
-- Примечание - Note
-- Событие - Event
-- Воронки и Статусы - Pipeline, Status
+tokens.default_token_manager(
+    client_id="your-client-id",
+    client_secret="your-client-secret",
+    subdomain="your-subdomain",  # e.g., "mycompany" (without .kommo.com)
+    redirect_url="https://your-redirect-url.com",
+    storage=tokens.FileTokensStorage(),  # default
+)
 
-Работа с сущностями
---------------------
+# Initialize with authorization code (first time only)
+tokens.default_token_manager.init(code="authorization-code-from-kommo")
+```
 
-У каждой сущности есть менеджер (аттрибут objects), который имеет следующие методы
+### Basic Usage
 
-::
+```python
+from amocrm.v2 import Contact, Lead, Company
 
-    <Entity>.objects.get(object_id=1, query="test")  # получение обьекта
-    <Entity>.objects.all()  # получение всех сущностей
-    <Entity>.objects.filter(**kwargs)  # получение списка сущностей с фильтром
+# Get a contact
+contact = Contact.objects.get(query="John Doe")
+print(contact.name)
+print(contact.company.name if contact.company else "No company")
 
-    <Entity>.objects.create(**kwargs)  # создание сущности (нет явной сигнатуры поэтому лучше использовать метод create самой сущности)
-    <Entity>.objects.update(**kwargs)  # обносление сущности (нет явной сигнатуры поэтому лучше использовать метод update самой сущности)
+# Get all leads
+for lead in Lead.objects.all():
+    print(f"{lead.name} - {lead.price}")
 
-В свою очередь сама сущность имеет несколько методов для более простого создания и обновления
+# Create a new contact
+contact = Contact(name="Jane Smith", first_name="Jane", last_name="Smith")
+contact.save()
 
-::
+# Update a contact
+contact = Contact.objects.get(query="Jane Smith")
+contact.last_name = "Doe"
+contact.save()
+```
 
-    <EntityInstance>.create()
-    <EntityInstance>.update()
-    <EntityInstance>.save()  # создаст или обновит в зависимости от того как обьект был инициализирован
+## Available Entities
 
-Исключение - создание звонка происходит через упрошенную сущность
-::
+- **Contact** - Contacts/People
+- **Company** - Companies
+- **Lead** - Deals/Opportunities
+- **Customer** - Customers
+- **Task** - Tasks
+- **Note** - Notes/Comments
+- **Event** - Events/Webhooks
+- **Pipeline** - Sales Pipelines
+- **Status** - Pipeline Statuses
+- **User** - Users
+- **Tag** - Tags
+- **Call** - Phone Calls
 
-    from amocrm.v2 import Call, CallDirection, CallStatus
+## Entity Operations
 
-    Call().create(CallDirection.OUTBOUNT, phone="....", source="", duration=timedelta(minutes=10), status=CallStatus.CALL_LATER, created_by=manager)
+Each entity has a manager (`objects`) with the following methods:
 
+```python
+# Get by ID or query
+entity = Entity.objects.get(object_id=123)
+entity = Entity.objects.get(query="search text")
 
-Рассмотрим полный процесс работы на примере контакта
+# Get all entities (with automatic pagination)
+all_entities = Entity.objects.all()
 
-::
+# Filter entities
+filtered = Entity.objects.filter(
+    query="search",
+    filters=(your_filters,),
+    order={"created_at": "desc"}
+)
 
-    from amocrm.v2 import Contact, Company
+# Create
+entity = Entity(name="New Entity")
+entity.create()
 
-    contact = Contact.objects.get(query="Тест")
-    print(contact.first_name)
-    print(contact.company.name)
-    print(contact.created_at)
+# Update
+entity.name = "Updated Name"
+entity.update()
 
-    contact.last_name = "Новое"
-    contact.tags.append("new")
-    contact.notes.objects.create(text="Примечание")
+# Save (creates or updates automatically)
+entity.save()
+```
 
-    contact.save()
+## Custom Fields
 
-    contact.company = Company(name="Amocrm")  # создаст и сразу прилинкует компанию
-    print(contact.company.id)
+Kommo supports custom fields. You can map them in your models:
 
-    len(list(contact.customers)) # lazy list
-    contact.customers.append(Customer(name="Volta"))
+```python
+from amocrm.v2 import Lead as _Lead, custom_field
 
+class Lead(_Lead):
+    utm_source = custom_field.UrlCustomField("UTM Source")
+    delivery_type = custom_field.SelectCustomField("Delivery Type")
+    address = custom_field.TextCustomField("Address")
+```
 
-Кастомные поля
---------------
+You can also auto-generate custom field mappings using the CLI tool:
 
-Одна из удобных возможностей amoCRM  - кастомные поля
+```bash
+export AMOCRM_CLIENT_ID=xxx
+export AMOCRM_SECRET=xxx
+export AMOCRM_SUBDOMAIN=xxx
+export AMOCRM_REDIRECT_URL=xxx
+export AMOCRM_CODE=xxx  # optional
+pyamogen > models.py
+```
 
-Example::
+## Documentation
 
-    from amocrm.v2 import Lead as _Lead, custom_field
+For comprehensive documentation, see [Documentacao.md](Documentacao.md) (in Portuguese) or the original repository's documentation.
 
-    class Lead(_Lead):
-        utm = custom_field.UrlCustomField("UTM метка")
-        delivery_type = custom_field.SelectCustomField("Способ доставки")
-        address = custom_field.TextCustomField("Адрес")
+## Requirements
 
+- Python >= 3.6
+- requests
+- pyjwt
 
-Однако мапинг всех кастомных полей дело утоминетльное,
-поэтому для генерации файла с готовым мапингом есть команда::
+Optional:
+- redis (for RedisTokensStorage)
+- python-slugify (for pyamogen CLI tool)
 
-    export AMOCRM_CLIENT_ID=xxx
-    export AMOCRM_SECRET=xxx
-    export AMOCRM_SUBDOMAIN=xxx
-    export AMOCRM_REDIRECT_URL=xxx
-    export AMOCRM_CODE=xxx # optional
-    pyamogen > models.py
+## License
 
-Для ее работы необходимо установить пакет python-slugify (https://github.com/un33k/python-slugify)
+MIT License - Same as the original project.
+
+## Contributing
+
+This is an adaptation of the original work. For issues specific to this Kommo adaptation, please open an issue in this repository. For general API wrapper improvements, consider contributing to the original repository.
+
+## Acknowledgments
+
+Special thanks to Dmitry Kryukov (Krukov) for creating the original amocrm_api library, which this project is based on.
+
