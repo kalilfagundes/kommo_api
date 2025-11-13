@@ -18,7 +18,7 @@ DETAIL_INFO = {
         }
     ],
     "account_id": 10,
-    "_links": {"self": {"href": "https://exmaple.amocrm.ru/api/v4/companies/1"}},
+    "_links": {"self": {"href": "https://example.kommo.com/api/v4/companies/1"}},
     "_embedded": {"tags": []},
 }
 
@@ -42,6 +42,6 @@ DETAIL_INFO_2 = {
         }
     ],
     "account_id": 10,
-    "_links": {"self": {"href": "https://exmaple.amocrm.ru/api/v4/companies/1"}},
+    "_links": {"self": {"href": "https://example.kommo.com/api/v4/companies/1"}},
     "_embedded": {"tags": []},
 }

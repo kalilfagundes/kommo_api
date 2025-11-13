@@ -36,5 +36,5 @@ DETAIL_INFO = {
         "group_id": None,
         "role_id": None,
     },
-    "_links": {"self": {"href": "https://example.amocrm.ru/api/v4/users/185848"}},
+    "_links": {"self": {"href": "https://example.kommo.com/api/v4/users/185848"}},
 }

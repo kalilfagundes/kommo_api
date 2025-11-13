@@ -8,7 +8,7 @@ AmoCRM python API. V2
     :target: https://coveralls.io/r/Krukov/amocrm_api
 
 
-Python AmoCRM API v2 (http://www.amocrm.ru/) (human interface for easy using)
+Python AmoCRM API v2 (https://kommo.com/) (human interface for easy using)
 
 
 Installation

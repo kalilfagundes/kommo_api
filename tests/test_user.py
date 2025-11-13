@@ -7,7 +7,7 @@ from .data.users import DETAIL_INFO
 
 
 def test_get(response_mock):
-    response_mock.add("GET", "https://test.amocrm.ru/api/v4/users/3", match_querystring=False, json=DETAIL_INFO)
+    response_mock.add("GET", "https://test.kommo.com/api/v4/users/3", match_querystring=False, json=DETAIL_INFO)
     user = User.objects.get(3)
 
     assert user.id == 3

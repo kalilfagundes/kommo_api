@@ -28,4 +28,4 @@ class List(model.Model):
     objects = manager.Manager(ListsInteraction())
 
 # Implemented a class for lists
-# amocrm api - https://www.amocrm.ru/developers/content/crm_platform/catalogs-api#lists-add
+# amocrm api - https://kommo.com/developers/content/crm_platform/catalogs-api#lists-add

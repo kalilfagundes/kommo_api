@@ -29,7 +29,7 @@ class BaseInteraction:
         return {"Authorization": "Bearer " + self._token_manager.get_access_token()}
 
     def _get_url(self, path):
-        return "https://{subdomain}.amocrm.ru/api/v4/{path}".format(subdomain=self._token_manager.subdomain, path=path)
+        return "https://{subdomain}.kommo.com/api/v4/{path}".format(subdomain=self._token_manager.subdomain, path=path)
 
     def _request(self, method, path, data=None, params=None, headers=None):
         headers = headers or {}

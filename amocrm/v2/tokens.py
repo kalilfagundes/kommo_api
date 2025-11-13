@@ -116,7 +116,7 @@ class TokenManager:
             "client_secret": self._client_secret,
         }
         try:
-            response = requests.post("https://{}.amocrm.ru/oauth2/access_token".format(self.subdomain), json=data)
+            response = requests.post("https://{}.kommo.com/oauth2/access_token".format(self.subdomain), json=data)
         except requests.exceptions.RequestException:
             logger.warning("can't init tokens")
             if not skip_error:
@@ -141,7 +141,7 @@ class TokenManager:
             "refresh_token": refresh_token,
             "redirect_uri": self._redirect_url,
         }
-        response = requests.post("https://{}.amocrm.ru/oauth2/access_token".format(self.subdomain), json=body)
+        response = requests.post("https://{}.kommo.com/oauth2/access_token".format(self.subdomain), json=body)
         if response.status_code == 200:
             data = response.json()
             return data["access_token"], data["refresh_token"]
